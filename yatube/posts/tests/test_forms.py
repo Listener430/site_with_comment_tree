@@ -131,8 +131,6 @@ class PostCreateFormTests(TestCase):
 
     def test_post_comment(self):
         """Валидная форма создает коммент в Post."""
-        tasks_count = Post.objects.count()
-
         form_data = {
             "author": self.user.id,
             "post": self.post65,
