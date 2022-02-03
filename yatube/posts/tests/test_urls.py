@@ -43,7 +43,7 @@ class StaticURLTests(TestCase):
                 )
 
     def test_post_create_url_exists_at_desired_location(self):
-        """Страница /create/,/edit/,,,доступны авторизованному пользователю."""
+        """Страница /create/,/edit/,,доступны авторизованному пользователю."""
         addres_names = [
             "/create/",
             "/posts/65/edit/",

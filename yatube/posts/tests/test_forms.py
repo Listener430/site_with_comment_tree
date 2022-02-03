@@ -130,7 +130,7 @@ class PostCreateFormTests(TestCase):
         self.assertNotIn(self.post65, response.context["page_obj"])
 
     def test_post_comment(self):
-        """Валидная форма создает коммент в Post."""
+        """Валидная форма создает коммент в Post.."""
         form_data = {
             "author": self.user.id,
             "post": self.post65,
