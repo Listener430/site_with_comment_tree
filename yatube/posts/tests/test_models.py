@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from ..models import Group, Post
+from ..models import Group, Post, SYMBOLS_NUMBER
 
 User = get_user_model()
 
@@ -24,7 +24,7 @@ class PostModelTest(TestCase):
     def test_post_have_correct_object_names(self):
         """Проверяем, что у Post корректно работает __str__."""
         post = PostModelTest.post
-        expected_object_name = post.text[:15]
+        expected_object_name = post.text[:SYMBOLS_NUMBER]
         self.assertEqual(expected_object_name, str(post))
 
     def test_group_have_correct_object_names(self):

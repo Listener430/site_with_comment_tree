@@ -10,17 +10,6 @@ class PostForm(forms.ModelForm):
 
         fields = ("text", "group", "image")
 
-        labels = {
-            "text": _("Текст поста"),
-            "group": _("Группа"),
-            "image": _("Картинка"),
-        }
-        help_texts = {
-            "text": _("Текст нового поста"),
-            "group": _("Группа, к которой будет относиться пост"),
-            "image": _("Добавьте картинку"),
-        }
-
 
 class CommentForm(forms.ModelForm):
     class Meta:

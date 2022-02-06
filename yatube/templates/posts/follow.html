@@ -5,11 +5,11 @@
 Лента подписок.
 {% endblock %}
 {% block content %}
-{% include 'posts/includes/switcher.html' %}
+{% include 'includes/switcher.html' %}
 <div class="container">
     <h1>Лента подписок.</h1>
-    <article>
       {% for post in page_obj %}
+      <article>
       <ul>
           <li>
           Автор: {{ post.author.get_full_name }}
@@ -30,5 +30,5 @@
     </article>
     {% if not forloop.last %}<hr>{% endif %}
     {% endfor %} 
-    {% include 'posts/includes/paginator.html' %}
+    {% include 'includes/paginator.html' %}
     {% endblock %}

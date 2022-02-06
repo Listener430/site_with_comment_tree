@@ -30,8 +30,8 @@
 <div class="container py-5">        
     <h1>Все посты пользователя {{ author.get_full_name }} </h1>
     <h3>Всего постов: {{ count }} </h3>   
-    <article>
     {% for post in page_obj %}
+    <article>
       <ul>
         <li>
           Дата публикации: {{ post.pub_date|date:"d E Y" }}
@@ -50,6 +50,6 @@
     {% endif %}      
     {% if not forloop.last %}<hr>{% endif %}
     {% endfor %} 
-    {% include 'posts/includes/paginator.html' %}  
+    {% include 'includes/paginator.html' %}  
   </div>
 {% endblock %}

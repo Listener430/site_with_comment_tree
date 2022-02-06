@@ -48,7 +48,6 @@ class StaticURLTests(TestCase):
             "/create/",
             "/posts/65/edit/",
             "/posts/65/comment/",
-            "/profile/HasNoName/unfollow/",
         ]
         for addres in addres_names:
             with self.subTest(addres=addres):

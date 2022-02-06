@@ -3,6 +3,8 @@ from django.db import models
 
 User = get_user_model()
 
+SYMBOLS_NUMBER = 15
+
 
 class Group(models.Model):
     title = models.CharField(max_length=200)
@@ -14,7 +16,9 @@ class Group(models.Model):
 
 
 class Post(models.Model):
-    text = models.TextField("Текст поста", help_text="Введите текст поста")
+    text = models.TextField(
+        verbose_name="Текст поста", help_text="Введите текст поста"
+    )
     pub_date = models.DateTimeField("Дата публикации", auto_now_add=True)
     author = models.ForeignKey(
         User,
@@ -29,12 +33,17 @@ class Post(models.Model):
         on_delete=models.SET_NULL,
         related_name="posts",
         verbose_name="Группа",
-        help_text="Выберите группу",
+        help_text="Группа, к которой будет относиться пост",
     )
-    image = models.ImageField("Картинка", upload_to="posts/", blank=True)
+    image = models.ImageField(
+        verbose_name="Картинка",
+        upload_to="posts/",
+        blank=True,
+        help_text="Добавьте картинку",
+    )
 
     def __str__(self):
-        return self.text[:15]
+        return self.text[:SYMBOLS_NUMBER]
 
     class Meta:
         ordering = ["-pub_date"]

@@ -6,12 +6,12 @@
 Последние обновления на сайте.
 {% endblock %}
 {% block content %}
-{% include 'posts/includes/switcher.html' %}
+{% include 'includes/switcher.html' %}
 <div class="container">
     <h1>Последние обновления на сайте.</h1>
     {% cache 20 index_page %}
-    <article>
       {% for post in page_obj %}
+      <article>
       <ul>
           <li>
           Автор: {{ post.author.get_full_name }}
@@ -33,5 +33,5 @@
     {% if not forloop.last %}<hr>{% endif %}
     {% endfor %} 
     {% endcache %} 
-    {% include 'posts/includes/paginator.html' %}
+    {% include 'includes/paginator.html' %}
     {% endblock %}
