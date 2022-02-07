@@ -8,11 +8,13 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.shortcuts import get_object_or_404
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
-from posts.models import Group, Post, Follow
+from posts.models import Follow, Group, Post
 from posts.views import POST_NUMBER
 
 User = get_user_model()
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
+
+PAGINATOR_TEST = 3
 
 
 @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
@@ -221,6 +223,7 @@ class PostPagesTests(TestCase):
         response = self.authorized_client.get("/")
         content = response.content
         Post.objects.filter(id=67).delete()
+        response = self.authorized_client.get("/")
         new_content = response.content
         self.assertEqual(content, new_content)
         cache.clear()
@@ -228,11 +231,30 @@ class PostPagesTests(TestCase):
         clear_content = response.content
         self.assertNotEqual(content, clear_content)
 
+
+class FollowTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = User.objects.create_user(username="HasNoName")
+        cls.user2 = User.objects.create_user(username="Another")
+        cls.follow = Follow.objects.create(author=cls.user, user=cls.user2)
+        cls.post = Post.objects.create(id=1, author=cls.user)
+
+    def setUp(self):
+        self.guest_client = Client()
+        self.guest_user = FollowTests.user
+        self.guest_user2 = FollowTests.user2
+        self.authorized_client = Client()
+        self.authorized_client2 = Client()
+        self.authorized_client.force_login(self.guest_user)
+        self.authorized_client2.force_login(self.guest_user2)
+
     def test_follow_show_correct_context(self):
-        """Шаблон follow сформирован с правильным контекстом."""
-        Follow.objects.create(author=self.user, user=self.user2)
+        """Новая запись пользователя появляется в ленте тех,"""
+        """ кто на него подписан и"""
+        """не появляется в ленте тех, кто не подписан"""
         response = self.authorized_client2.get("/follow/")
-        self.assertIn("page_obj", response.context)
         self.assertEqual(
             Post.objects.first(),
             response.context["page_obj"].object_list[0],
@@ -242,6 +264,17 @@ class PostPagesTests(TestCase):
             Post.objects.first(),
             response.context["page_obj"],
         )
+
+    def test_follow_suscribe_unsuscribe(self):
+        """Проверяем что пользователь может отписаться,"""
+        """и подписаться обратно"""
+        count_sucribed = Follow.objects.count()
+        self.authorized_client2.get("/profile/HasNoName/unfollow/")
+        count_unsucribed = Follow.objects.count()
+        self.assertEqual(count_sucribed - 1, count_unsucribed)
+        self.authorized_client2.get("/profile/HasNoName/follow/")
+        count_sucribed2 = Follow.objects.count()
+        self.assertEqual(count_sucribed2 - 1, count_unsucribed)
 
 
 class PaginatorViewsTest(TestCase):
@@ -256,7 +289,7 @@ class PaginatorViewsTest(TestCase):
         self.guest_user = PaginatorViewsTest.user
         self.authorized_client = Client()
         self.authorized_client.force_login(self.guest_user)
-        for i in range(13):
+        for i in range(PAGINATOR_TEST + POST_NUMBER):
             post = ""
             post = post + str(i)
             self.post = Post.objects.create(
@@ -269,26 +302,26 @@ class PaginatorViewsTest(TestCase):
     def test_index_first_page_contains_ten_records(self):
         """Тестируем все паджинаторы 3 - штуки"""
         response = self.authorized_client.get("/")
-        self.assertEqual(len(response.context["page_obj"]), 10)
+        self.assertEqual(len(response.context["page_obj"]), POST_NUMBER)
 
     def test_index_second_page_contains_three_records(self):
         response = self.authorized_client.get("/" + "?page=2")
-        self.assertEqual(len(response.context["page_obj"]), 3)
+        self.assertEqual(len(response.context["page_obj"]), PAGINATOR_TEST)
 
     def test_group_first_page_contains_ten_records(self):
         response = self.authorized_client.get("/group/test-slug/")
-        self.assertEqual(len(response.context["page_obj"]), 10)
+        self.assertEqual(len(response.context["page_obj"]), POST_NUMBER)
 
     def test_group_second_page_contains_three_records(self):
         response = self.authorized_client.get("/group/test-slug/" + "?page=2")
-        self.assertEqual(len(response.context["page_obj"]), 3)
+        self.assertEqual(len(response.context["page_obj"]), PAGINATOR_TEST)
 
     def test_profile_first_page_contains_ten_records(self):
         response = self.authorized_client.get("/profile/HasNoName/")
-        self.assertEqual(len(response.context["page_obj"]), 10)
+        self.assertEqual(len(response.context["page_obj"]), POST_NUMBER)
 
     def test_profile_second_page_contains_three_records(self):
         response = self.authorized_client.get(
             "/profile/HasNoName/" + "?page=2"
         )
-        self.assertEqual(len(response.context["page_obj"]), 3)
+        self.assertEqual(len(response.context["page_obj"]), PAGINATOR_TEST)
