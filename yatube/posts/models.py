@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from mptt.models import MPTTModel, TreeForeignKey
 
 User = get_user_model()
 
@@ -61,12 +62,22 @@ class Post(models.Model):
         ordering = ["-pub_date"]
 
 
-class Comment(models.Model):
+class Comment(MPTTModel):
 
     post = models.ForeignKey(
         Post,
         on_delete=models.CASCADE,
         related_name="comments",
+    )
+
+    parent = TreeForeignKey(
+        "self",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="children",
+        verbose_name="Группа",
+        help_text="Группа, к которой будет относиться пост",
     )
 
     author = models.ForeignKey(

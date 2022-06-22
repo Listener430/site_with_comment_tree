@@ -14,6 +14,11 @@ urlpatterns = [
     path(
         "posts/<int:post_id>/comment/", views.add_comment, name="add_comment"
     ),
+    path(
+        "posts/<int:post_id>/<int:id>/comment/",
+        views.add_comment_child,
+        name="add_comment_child",
+    ),
     path("follow/", views.follow_index, name="follow_index"),
     path(
         "profile/<str:username>/follow/",

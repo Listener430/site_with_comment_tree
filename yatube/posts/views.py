@@ -3,7 +3,7 @@ from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import CommentForm, PostForm
-from .models import Follow, Group, Post, User
+from .models import Comment, Follow, Group, Post, User
 
 POST_NUMBER = 10
 NUMB = 30
@@ -101,16 +101,42 @@ def post_edit(request, post_id):
 def add_comment(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     form = CommentForm(request.POST or None)
+    try:
+        parent_id = request.POST["comment_id"]
+    except:
+        parent_id = 0
+
     if form.is_valid():
         comment = form.save(commit=False)
         comment.author = request.user
         comment.post = post
+        if parent_id != 0:
+            comment.parent = Comment.objects.get(id=parent_id)
+        comment.save()
+        return redirect("posts:post_detail", post_id=post_id)
+
+    return render(request, "posts/post_detail.html")
+
+
+@login_required
+def add_comment_child(request, post_id, id):
+    post = get_object_or_404(Post, id=post_id)
+    parent = get_object_or_404(Comment, id=id)
+    form = CommentForm(request.POST or None)
+    if form.is_valid():
+        print(parent)
+        comment = form.save(commit=False)
+        comment.author = request.user
+        comment.post = post
+        comment.parent = parent
         comment.save()
         return redirect("posts:post_detail", post_id=post_id)
 
     context = {
         "post": post,
         "form": form,
+        "comments": post.comments.all(),
+        "parent": parent,
     }
     return render(request, "posts/post_detail.html", context)
 
